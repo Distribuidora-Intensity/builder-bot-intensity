@@ -5,7 +5,6 @@ const { BaileysProvider } = require('@builderbot/provider-baileys')
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// Endpoint para que Railway vea que está vivo
 app.get('/', (req, res) => {
   res.send('Bot Intensity funcionando')
 })
@@ -15,20 +14,23 @@ app.listen(PORT, () => {
 })
 
 const flowPrincipal = addKeyword(['hola', 'buenas']).addAnswer(
-  'Hola 👋 Soy el asistente de Intensity. Decime qué estás buscando.'
+  'Hola 👋 Soy el asistente de Intensity. ¿Qué producto estás buscando?'
 )
 
 async function main() {
   const provider = createProvider(BaileysProvider, {
-    sessionPath: './sessions'
+    sessionPath: './sessions',
+    printQRInTerminal: true
   })
 
   const flow = createFlow([flowPrincipal])
 
   await createBot({
     flow,
-    provider,
+    provider
   })
+
+  console.log("Bot de WhatsApp iniciado")
 }
 
 main()
