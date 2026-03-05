@@ -17,23 +17,29 @@ const flowPrincipal = addKeyword(['hola','buenas']).addAnswer(
   'Hola 👋 Soy el asistente de Intensity. ¿Qué producto estás buscando?'
 )
 
-const main = async () => {
+async function main(){
 
   const adapterDB = new MemoryDB()
 
-  const adapterFlow = createFlow([flowPrincipal])
+  const adapterFlow = createFlow([
+    flowPrincipal
+  ])
 
   const adapterProvider = createProvider(BaileysProvider,{
     sessionPath:'./sessions',
     printQRInTerminal:true
   })
 
-  createBot({
+  await createBot({
     flow: adapterFlow,
     provider: adapterProvider,
     database: adapterDB
   })
 
+  console.log("Bot iniciado correctamente")
+
+  // mantiene vivo el proceso
+  setInterval(()=>{},1000)
 }
 
 main()
