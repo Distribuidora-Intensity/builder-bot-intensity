@@ -1,5 +1,5 @@
 const express = require('express')
-const { createBot, createProvider, createFlow, addKeyword } = require('@builderbot/bot')
+const { createBot, createProvider, createFlow, addKeyword, MemoryDB } = require('@builderbot/bot')
 const { BaileysProvider } = require('@builderbot/provider-baileys')
 
 const app = express()
@@ -13,21 +13,25 @@ app.listen(PORT, () => {
   console.log(`Servidor HTTP activo en puerto ${PORT}`)
 })
 
-const flowPrincipal = addKeyword(['hola', 'buenas']).addAnswer(
+const flowPrincipal = addKeyword(['hola','buenas']).addAnswer(
   'Hola 👋 Soy el asistente de Intensity. ¿Qué producto estás buscando?'
 )
 
 async function main() {
-  const provider = createProvider(BaileysProvider, {
+
+  const adapterDB = new MemoryDB()
+
+  const adapterProvider = createProvider(BaileysProvider, {
     sessionPath: './sessions',
     printQRInTerminal: true
   })
 
-  const flow = createFlow([flowPrincipal])
+  const adapterFlow = createFlow([flowPrincipal])
 
   await createBot({
-    flow,
-    provider
+    flow: adapterFlow,
+    provider: adapterProvider,
+    database: adapterDB
   })
 
   console.log("Bot de WhatsApp iniciado")
