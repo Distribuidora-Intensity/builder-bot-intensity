@@ -1,29 +1,36 @@
 const express = require('express')
 const { createBot, createProvider, createFlow, addKeyword, MemoryDB } = require('@builderbot/bot')
 const { BaileysProvider } = require('@builderbot/provider-baileys')
+const QRCode = require('qrcode')
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// Ruta base para probar que el servidor funciona
+let qrCodeBase64 = null
+
 app.get('/', (req, res) => {
     res.send('Bot Intensity funcionando')
 })
 
-// Ruta para verificar QR (la usaremos después)
-app.get('/qr', (req, res) => {
-    res.send('El QR se muestra en los logs del servidor')
+app.get('/qr', async (req, res) => {
+
+    if (!qrCodeBase64) {
+        return res.send("QR todavía no generado, revisá nuevamente en unos segundos")
+    }
+
+    res.send(`
+        <h2>Escanear QR para conectar WhatsApp</h2>
+        <img src="${qrCodeBase64}" />
+    `)
 })
 
 app.listen(PORT, () => {
     console.log(`Servidor HTTP activo en puerto ${PORT}`)
 })
 
-// Flujo simple
 const flowPrincipal = addKeyword(['hola', 'buenas'])
     .addAnswer('Hola 👋 Soy el asistente de Intensity. ¿En qué puedo ayudarte?')
 
-// Inicialización del bot
 async function main() {
 
     const adapterDB = new MemoryDB()
@@ -34,7 +41,13 @@ async function main() {
 
     const adapterProvider = createProvider(BaileysProvider, {
         sessionPath: './sessions',
-        printQRInTerminal: true
+        printQRInTerminal: false
+    })
+
+    adapterProvider.on('qr', async (qr) => {
+        console.log('QR generado')
+
+        qrCodeBase64 = await QRCode.toDataURL(qr)
     })
 
     await createBot({
@@ -45,7 +58,6 @@ async function main() {
 
     console.log('Bot iniciado correctamente')
 
-    // Mantener vivo el proceso para Railway
     setInterval(() => {}, 1000)
 }
 
