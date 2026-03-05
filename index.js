@@ -17,24 +17,23 @@ const flowPrincipal = addKeyword(['hola','buenas']).addAnswer(
   'Hola 👋 Soy el asistente de Intensity. ¿Qué producto estás buscando?'
 )
 
-async function main() {
+const main = async () => {
 
   const adapterDB = new MemoryDB()
 
-  const adapterProvider = createProvider(BaileysProvider, {
-    sessionPath: './sessions',
-    printQRInTerminal: true
-  })
-
   const adapterFlow = createFlow([flowPrincipal])
 
-  await createBot({
+  const adapterProvider = createProvider(BaileysProvider,{
+    sessionPath:'./sessions',
+    printQRInTerminal:true
+  })
+
+  createBot({
     flow: adapterFlow,
     provider: adapterProvider,
     database: adapterDB
   })
 
-  console.log("Bot de WhatsApp iniciado")
 }
 
 main()
